@@ -45,7 +45,7 @@ const server = http.createServer((req,res)=>{
 //#endregion
 
     // Add a qoute
-    else if (method === "POST" && url === "/add_qoute"){
+    else if (method === "POST" && url === "/add_quote"){
         let body = "";
         req.on("data",chunck => {body += chunck});
         req.on("end",async ()=> {
@@ -72,6 +72,43 @@ const server = http.createServer((req,res)=>{
 //and another to process in it you can write what you will do with it in req.on("end",.....)
 //you used promises so the server won't block the clints untill the procces ends
 // the user need to but the qoute without "......."
+//#endregion
+
+    // Delete route
+    else if (method === "DELETE" && url.startsWith("/deleteQ")){
+        const idToDelete = parseInt(url.split("Q")[1]);
+        //check for a bad or invalid id
+        if(isNaN(idToDelete)){
+            res.writeHead(400,{"content-type": "text/plain"});
+            return res.end("Ivalid id");
+        }
+
+       ( async ()=> {
+            let arr = await use.ReadData("./quotes.json");
+            let HasId = arr.some(obj => obj.id === idToDelete) ;
+            if (!HasId){
+                res.writeHead(404,{"content-type": "text/plain"})
+                return res.end("Quote not found.")
+            }
+            let newData = arr.filter( q => q.id !== idToDelete);
+            let NewQuotes = await use.UpdateData("./quotes.json",newData);
+            if (NewQuotes){
+                res.writeHead(200,{"content-type": "text/plain"});
+                return res.end ("Quote Have Been Deleted..");
+            }else{
+                 res.writeHead(500,{"content-type": "text/plain"});
+                return res.end ("There was an Error While Deleting the Quote");
+            }
+        })();
+        
+    }
+//#region
+// filter to delete the object
+//use arr.some to check if the object with that id is available
+//HasId is eather true or false
+//the function updateData turns back true or false and the data saving is side effect
+//the (async ()=>{......}) (); is called IIFE and you made it because the need of using await
+//if(isNaN(value)) checks if the value is number or not 
 //#endregion
 
     // Unkowen route
