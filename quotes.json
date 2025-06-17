@@ -1,14 +1,10 @@
 [
   {
-    "id": 1,
+    "id": 0,
     "text": "Life is short, smile while you still have teeth."
   },
   {
-    "id": 2,
-    "text": "Be yourself; everyone else is already taken."
-  },
-  {
-    "id": 3,
+    "id": 1,
     "text": "Be yourself, everyone else is already taken."
   }
 ]

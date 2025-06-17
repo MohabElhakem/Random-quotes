@@ -43,8 +43,22 @@ const server = http.createServer((req,res)=>{
         });
     }*/
 //#endregion
+    // Show a Quote
+    else if (method==="GET" && url === "/R_quote"){
+        (async ()=>{
+            let arr = await use.ReadData("./quotes.json");
+            let R_Q = await use.RandomQuote("./used_id.json",arr);
+            if (R_Q === false) {
+                res.writeHead(500,{"content-type": "text/plain"});
+                return res.end("Error fetching your quote");
+            }
+            res.writeHead(200,{"content-type": "text/plain"});
+            return res.end(R_Q.text);
 
-    // Add a qoute
+        })();
+    }
+
+    // Add a Quote
     else if (method === "POST" && url === "/add_quote"){
         let body = "";
         req.on("data",chunck => {body += chunck});
@@ -74,7 +88,7 @@ const server = http.createServer((req,res)=>{
 // the user need to but the qoute without "......."
 //#endregion
 
-    // Delete route
+    // Delete Route
     else if (method === "DELETE" && url.startsWith("/deleteQ")){
         const idToDelete = parseInt(url.split("Q")[1]);
         //check for a bad or invalid id
@@ -100,6 +114,25 @@ const server = http.createServer((req,res)=>{
                 return res.end ("There was an Error While Deleting the Quote");
             }
         })();
+    // ading the deletion of the id in the used_id file
+       ( async ()=>{
+
+        let arr = await use.ReadData("./used_id.json");
+        // use condetion to check if the quote is not used
+        let condition = arr.includes(idToDelete);
+        if (!condition){
+            return console.log("not in the used file ...");
+        }
+        //use a condetion to make sure that the new used data is saved shows  in the terminal
+        let NEW_used = arr.filter(num => num !== idToDelete);
+        let Update_NEW_used = await use.UpdateData("./used_id.json",NEW_used);
+        if (Update_NEW_used){ return console.log("New used id have been updated");}
+        else {
+             res.writeHead(500,{"content-type": "text/plain"});
+            return res.end ("There was an Error While Deleting the Quote id from The Used Id data");
+        }
+            
+        }) ();
         
     }
 //#region

@@ -1,3 +1,5 @@
+const { readFile } = require('fs');
+
 const fs = require ('fs').promises;
 
 async function ReadData(FilePath){
@@ -24,7 +26,7 @@ async function AddData(FilePath,data,arr){
     }
 
 };
-//#region My Comment 
+//#region AddData
 //function ReadData (FilePath) {
 //   return new Promise((resolve, reject) => {
 //        fs.readFile(FilePath,"utf-8")
@@ -56,7 +58,7 @@ async function UpdateData(FilePath,arr){
         return false;
     }
 }
-//#region
+//#region UpdateData
 //the function is for updating the data at this point so i dont need to write the same code
 // mostly for the use with delte 
 // it may have other uses in the future
@@ -64,4 +66,37 @@ async function UpdateData(FilePath,arr){
 //doesn't block the main thread
 //#endregion
 
-module.exports = {ReadData,AddData,UpdateData}
+async function RandomQuote(Used_Id_FilePath,arr){
+  try{ let used = await ReadData(Used_Id_FilePath);
+        if ( used.length === arr.length ){ used = [] };
+        let random;
+        let HasId = false;
+        do{
+         random = arr[Math.floor( Math.random()* arr.length )];
+         //HasId = used.some(num => num === random.id);
+         HasId = used.includes(random.id);
+         //use include since its a quick check of primitiv value (string,numbers,boolen)
+        }while (HasId);
+         //makw sure to push the id not the whole object
+        used.push(random.id);
+        await UpdateData(Used_Id_FilePath,used);
+        console.log("The id have been moved to used_id ");
+        return random ;
+    }catch(err){
+        console.log("Couldn't git the quote");
+        return false;
+    }
+    
+}
+//#region RandomQuote
+// the function for getting a rando quote from a json file
+// it check for all condetions and empty the used file if all the ->
+// -> quotes have been used before
+//you can devlop it by making it takes two file pathes and process both of them -> 
+// -> so there will be no need to do it inside the server
+//random is the actual object not the index 
+// the function can gives you a an object if right 
+// and a faulse if not
+//#endregion
+
+module.exports = {ReadData,AddData,UpdateData,RandomQuote}
